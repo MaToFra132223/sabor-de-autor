@@ -142,6 +142,34 @@ def logout(request: Request):
     return RedirectResponse("/login", status_code=303)
 
 
+
+
+@app.get("/debug-db")
+def debug_db(db: Session = Depends(get_db)):
+    # URL real de la base que está usando la app
+    url = str(db.bind.url)
+
+    result = {}
+    for model, name in [
+        (Usuario, "usuarios"),
+        (Producto, "productos"),
+        (Pedido, "pedidos"),
+    ]:
+        try:
+            count = db.query(model).count()
+        except Exception as e:
+            count = f"error: {e!r}"
+        result[name] = count
+
+    return JSONResponse(
+        {
+            "db_url": url,
+            "tablas": result,
+        }
+    )
+
+
+
 # =========================
 # HOME
 # =========================
