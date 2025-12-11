@@ -144,32 +144,6 @@ def logout(request: Request):
 
 
 
-@app.get("/debug-db")
-def debug_db(db: Session = Depends(get_db)):
-    # URL real de la base que está usando la app
-    url = str(db.bind.url)
-
-    result = {}
-    for model, name in [
-        (Usuario, "usuarios"),
-        (Producto, "productos"),
-        (Pedido, "pedidos"),
-    ]:
-        try:
-            count = db.query(model).count()
-        except Exception as e:
-            count = f"error: {e!r}"
-        result[name] = count
-
-    return JSONResponse(
-        {
-            "db_url": url,
-            "tablas": result,
-        }
-    )
-
-
-
 # =========================
 # HOME
 # =========================
@@ -1447,5 +1421,35 @@ def exportar_reportes(
         output,
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+
+
+from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
+from fastapi import Depends
+
+# Debug: ver qué base está usando Render realmente
+@app.get("/debug-db")
+def debug_db(db: Session = Depends(get_db)):
+    url = str(db.bind.url)
+
+    result = {}
+    for model, name in [
+        (Usuario, "usuarios"),
+        (Producto, "productos"),
+        (Pedido, "pedidos"),
+    ]:
+        try:
+            count = db.query(model).count()
+        except Exception as e:
+            count = f"error: {e!r}"
+        result[name] = count
+
+    return JSONResponse(
+        {
+            "db_url": url,
+            "tablas": result
+        }
     )
 
