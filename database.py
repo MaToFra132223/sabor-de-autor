@@ -17,7 +17,7 @@ if DATABASE_URL.startswith("postgres://"):
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
-    # connect_args={"sslmode": "require"},  # si Supabase lo pidiera, se habilita esto
+    # connect_args={"sslmode": "require"},  # descomentar si Supabase lo exigiera
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
