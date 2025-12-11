@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes – Sabor de Autor{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+    <div>
+        <h3 class="mb-0">Reportes y análisis de ventas</h3>
+        <small class="text-muted">
+            Período desde {{ desde }} hasta {{ hasta }}
+        </small>
+    </div>
+
+    <div class="mt-2 mt-md-0">
+        <form class="row g-2 align-items-end" method="get" action="/reportes">
+            <div class="col-auto">
+                <label for="desde" class="form-label mb-1">Desde</label>
+                <input type="date"
+                       id="desde"
+                       name="desde"
+                       class="form-control form-control-sm"
+                       value="{{ desde }}">
+            </div>
+            <div class="col-auto">
+                <label for="hasta" class="form-label mb-1">Hasta</label>
+                <input type="date"
+                       id="hasta"
+                       name="hasta"
+                       class="form-control form-control-sm"
+                       value="{{ hasta }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Aplicar
+                </button>
+            </div>
+            <div class="col-auto">
+                <a href="/reportes/exportar?desde={{ desde }}&hasta={{ hasta }}"
+                   class="btn btn-outline-secondary btn-sm">
+                    Exportar Excel
+                </a>
+            </div>
+            <div class="col-auto">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm no-print"
+                        onclick="window.print()">
+                    Imprimir
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- RESÚMENES -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Ventas netas</div>
+                <h4 class="mb-1">
+                    $ {{ "%.2f"|format(total_ventas|default(0.0)) }}
+                </h4>
+                <small class="text-muted">
+                    Total facturado (después de descuento)
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Descuentos</div>
+                <h4 class="mb-1">
+                    $ {{ "%.2f"|format(total_descuentos|default(0.0)) }}
+                </h4>
+                <small class="text-muted">
+                    Suma de descuentos aplicados
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Ganancia estimada</div>
+                <h4 class="mb-1">
+                    $ {{ "%.2f"|format(total_ganancia|default(0.0)) }}
+                </h4>
+                <small class="text-muted">
+                    Ventas netas – costo de productos
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Rentabilidad del período</div>
+                {% set rent = rentabilidad_pct|default(0.0) %}
+                <h4 class="mb-1">
+                    {{ "%.2f"|format(rent) }} %
+                </h4>
+                <small class="text-muted">
+                    Ganancia / Ventas
+                </small>
+                {% if rent >= 40 %}
+                    <span class="badge bg-success mt-2">Excelente</span>
+                {% elif rent >= 25 %}
+                    <span class="badge bg-primary mt-2">Buena</span>
+                {% elif rent >= 10 %}
+                    <span class="badge bg-warning text-dark mt-2">Ajustada</span>
+                {% else %}
+                    <span class="badge bg-danger mt-2">Baja</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DETALLE POR DÍA -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Detalle por día</span>
+        <small class="text-muted">
+            Evolución de pedidos, ventas y margen
+        </small>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 12%">Fecha</th>
+                        <th style="width: 10%; text-align: right;">Pedidos</th>
+                        <th style="width: 18%; text-align: right;">Ventas</th>
+                        <th style="width: 18%; text-align: right;">Descuentos</th>
+                        <th style="width: 18%; text-align: right;">Ganancia</th>
+                        <th style="width: 14%; text-align: right;">Rentabilidad %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if detalle_dias and detalle_dias|length > 0 %}
+                        {% for fila in detalle_dias %}
+                            <tr>
+                                <td>{{ fila.fecha.strftime("%d/%m/%Y") }}</td>
+                                <td class="text-end">{{ fila.pedidos }}</td>
+                                <td class="text-end">
+                                    $ {{ "%.2f"|format(fila.ventas|default(0.0)) }}
+                                </td>
+                                <td class="text-end">
+                                    $ {{ "%.2f"|format(fila.descuentos|default(0.0)) }}
+                                </td>
+                                <td class="text-end">
+                                    $ {{ "%.2f"|format(fila.ganancia|default(0.0)) }}
+                                </td>
+                                <td class="text-end">
+                                    {% set r = fila.rentabilidad|default(0.0) %}
+                                    {% if r >= 40 %}
+                                        <span class="badge bg-success">
+                                            {{ "%.1f"|format(r) }} %
+                                        </span>
+                                    {% elif r >= 25 %}
+                                        <span class="badge bg-primary">
+                                            {{ "%.1f"|format(r) }} %
+                                        </span>
+                                    {% elif r >= 10 %}
+                                        <span class="badge bg-warning text-dark">
+                                            {{ "%.1f"|format(r) }} %
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            {{ "%.1f"|format(r) }} %
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-3">
+                                No hay datos en el período seleccionado.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- RANKINGS -->
+<div class="row g-3 mb-4">
+    <!-- TOP CLIENTES -->
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Top clientes por ventas</span>
+                <small class="text-muted">Top 5</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cliente</th>
+                                <th class="text-end">Pedidos</th>
+                                <th class="text-end">Ventas</th>
+                                <th class="text-end">Ganancia</th>
+                                <th class="text-end">Rentab. %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if top_clientes and top_clientes|length > 0 %}
+                                {% for c in top_clientes %}
+                                    {% set v = c.ventas|default(0.0) %}
+                                    {% set g = c.ganancia|default(0.0) %}
+                                    {% set r = (g / v * 100) if v > 0 else 0 %}
+                                    <tr>
+                                        <td>{{ c.nombre }}</td>
+                                        <td class="text-end">{{ c.pedidos }}</td>
+                                        <td class="text-end">
+                                            $ {{ "%.2f"|format(v) }}
+                                        </td>
+                                        <td class="text-end">
+                                            $ {{ "%.2f"|format(g) }}
+                                        </td>
+                                        <td class="text-end">
+                                            {{ "%.1f"|format(r) }} %
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">
+                                        Sin clientes en el período.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP PRODUCTOS -->
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Top productos por ventas</span>
+                <small class="text-muted">Top 5</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-end">Unidades</th>
+                                <th class="text-end">Ventas</th>
+                                <th class="text-end">Ganancia</th>
+                                <th class="text-end">Rentab. %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if top_productos and top_productos|length > 0 %}
+                                {% for p in top_productos %}
+                                    {% set v = p.ventas|default(0.0) %}
+                                    {% set g = p.ganancia|default(0.0) %}
+                                    {% set r = (g / v * 100) if v > 0 else 0 %}
+                                    <tr>
+                                        <td>{{ p.nombre }}</td>
+                                        <td class="text-end">{{ p.unidades }}</td>
+                                        <td class="text-end">
+                                            $ {{ "%.2f"|format(v) }}
+                                        </td>
+                                        <td class="text-end">
+                                            $ {{ "%.2f"|format(g) }}
+                                        </td>
+                                        <td class="text-end">
+                                            {{ "%.1f"|format(r) }} %
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">
+                                        Sin productos vendidos en el período.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

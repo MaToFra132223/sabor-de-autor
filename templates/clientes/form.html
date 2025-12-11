@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-body">
+
+    {% if cliente %}
+      <h4>Editar cliente</h4>
+      <form method="post" action="/clientes/actualizar/{{ cliente.id }}">
+    {% else %}
+      <h4>Nuevo cliente</h4>
+      <form method="post" action="/clientes/guardar">
+    {% endif %}
+
+      <div class="mb-3">
+        <label>Nombre</label>
+        <input class="form-control" name="nombre"
+               value="{{ cliente.nombre if cliente else '' }}" required>
+      </div>
+      <div class="mb-3">
+        <label>Email</label>
+        <input class="form-control" name="email"
+               value="{{ cliente.email if cliente else '' }}">
+      </div>
+
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label>Teléfono</label>
+          <input class="form-control" name="telefono"
+                 value="{{ cliente.telefono if cliente else '' }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label>Ciudad</label>
+          <input class="form-control" name="ciudad"
+                 value="{{ cliente.ciudad if cliente else '' }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label>Dirección</label>
+          <input class="form-control" name="direccion"
+                 value="{{ cliente.direccion if cliente else '' }}">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label>Notas</label>
+        <textarea class="form-control" name="notas" rows="3">{{ cliente.notas if cliente else '' }}</textarea>
+      </div>
+
+      <button class="btn btn-success">Guardar</button>
+      <a href="/clientes" class="btn btn-secondary">Volver</a>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

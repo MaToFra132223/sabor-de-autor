@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Tablero de Pedidos | Sabor de Autor{% endblock %}
+
+{% block content %}
+
+<style>
+/* CONTENEDOR GENERAL */
+.tablero-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+}
+
+/* TARJETAS */
+.tablero-col {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* CABECERAS */
+.tablero-header {
+    background: #f3e4d0;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #5a3e1b;
+    text-align: center;
+}
+
+/* LISTA */
+.tablero-body {
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+/* CARD DE PEDIDO */
+.pedido-card {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #fcfaf7;
+}
+
+.pedido-card h6 {
+    margin: 0;
+    font-weight: bold;
+}
+
+.pedido-info {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* BOTONES */
+.pedido-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.btn-mini {
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-ver { background:#6c757d; color:white; }
+.btn-editar { background:#0d6efd; color:white; }
+.btn-cta { background:#adb5bd; color:black; }
+.btn-entregar { background:#198754; color:white; }
+.btn-borrar { background:#dc3545; color:white; }
+
+.btn-mini:hover {
+    opacity: 0.85;
+}
+
+/* MENSAJE VACÍO */
+.vacio {
+    color: #999;
+    text-align: center;
+    font-size: 0.9rem;
+    padding: 15px;
+}
+</style>
+
+<h2 class="mb-3">Tablero operativo de pedidos</h2>
+
+<div class="tablero-container">
+
+<!-- ======================= HOY ======================= -->
+<div class="tablero-col">
+    <div class="tablero-header">Realizados hoy</div>
+    <div class="tablero-body">
+        {% if realizados_hoy %}
+            {% for p in realizados_hoy %}
+                <div class="pedido-card">
+                    <h6>{{ p.cliente.nombre }}</h6>
+                    <div class="pedido-info">Pedido #{{ p.id }}</div>
+                    <div class="pedido-info">Hora: {{ p.fecha_pedido.strftime("%H:%M") }}</div>
+
+                    <div class="pedido-actions">
+                        <a href="/pedidos/ver/{{ p.id }}" class="btn-mini btn-ver">Ver</a>
+                        <a href="/pedidos/editar/{{ p.id }}" class="btn-mini btn-editar">Editar</a>
+                        <a href="/clientes/{{ p.cliente.id }}/cta-cte" class="btn-mini btn-cta">Cta Cte</a>
+                        <form method="post" action="/pedidos/{{ p.id }}/marcar-entregado" style="display:inline">
+                            <button class="btn-mini btn-entregar">Entregar</button>
+                        </form>
+                        <form method="post" action="/pedidos/{{ p.id }}/eliminar" style="display:inline" onsubmit="return confirm('¿Eliminar este pedido?')">
+                            <button class="btn-mini btn-borrar">🗑</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="vacio">No hay pedidos cargados hoy.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ======================= PENDIENTES ======================= -->
+<div class="tablero-col">
+    <div class="tablero-header">Pendientes</div>
+    <div class="tablero-body">
+        {% if pendientes %}
+            {% for p in pendientes %}
+                <div class="pedido-card">
+                    <h6>{{ p.cliente.nombre }}</h6>
+                    <div class="pedido-info">Pedido #{{ p.id }}</div>
+                    {% if p.fecha_entrega %}
+                    <div class="pedido-info">Entrega: {{ p.fecha_entrega.strftime("%d/%m") }}</div>
+                    {% endif %}
+
+                    <div class="pedido-actions">
+                        <a href="/pedidos/ver/{{ p.id }}" class="btn-mini btn-ver">Ver</a>
+                        <a href="/pedidos/editar/{{ p.id }}" class="btn-mini btn-editar">Editar</a>
+                        <a href="/clientes/{{ p.cliente.id }}/cta-cte" class="btn-mini btn-cta">Cta Cte</a>
+                        <form method="post" action="/pedidos/{{ p.id }}/marcar-entregado" style="display:inline">
+                            <button class="btn-mini btn-entregar">Entregar</button>
+                        </form>
+                        <form method="post" action="/pedidos/{{ p.id }}/eliminar" style="display:inline" onsubmit="return confirm('¿Eliminar este pedido?')">
+                            <button class="btn-mini btn-borrar">🗑</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="vacio">No hay pedidos pendientes.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ======================= ENTREGADOS ======================= -->
+<div class="tablero-col">
+    <div class="tablero-header">Entregados</div>
+    <div class="tablero-body">
+        {% if entregados %}
+            {% for p in entregados %}
+                <div class="pedido-card">
+                    <h6>{{ p.cliente.nombre }}</h6>
+                    <div class="pedido-info">Pedido #{{ p.id }}</div>
+                    <div class="pedido-info">Entregado el {{ p.fecha_entrega.strftime("%d/%m") }}</div>
+
+                    <div class="pedido-actions">
+                        <a href="/pedidos/ver/{{ p.id }}" class="btn-mini btn-ver">Ver</a>
+                        <a href="/clientes/{{ p.cliente.id }}/cta-cte" class="btn-mini btn-cta">Cta Cte</a>
+                        <form method="post" action="/pedidos/{{ p.id }}/eliminar" style="display:inline" onsubmit="return confirm('¿Eliminar este pedido?')">
+                            <button class="btn-mini btn-borrar">🗑</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="vacio">No hay pedidos entregados.</div>
+        {% endif %}
+    </div>
+</div>
+
+</div>
+
+{% endblock %}

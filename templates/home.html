@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Sabor de Autor{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col-12 col-lg-7">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="card-title mb-2">Bienvenida/o a Sabor de Autor – Gestión</h2>
+                <p class="mb-3 text-muted">
+                    Desde aquí podés administrar clientes, productos, pedidos, tablero diario y reportes de ventas,
+                    todo en un solo lugar.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/pedidos/nuevo" class="btn btn-primary">
+                        + Nuevo pedido
+                    </a>
+                    <a href="/pedidos/tablero" class="btn btn-outline-primary">
+                        Ver tablero de pedidos
+                    </a>
+                    <a href="/reportes" class="btn btn-outline-secondary">
+                        Ver reportes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Atajos rápidos</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <h6 class="mb-1">Clientes</h6>
+                            <p class="small text-muted mb-2">
+                                Alta de nuevos clientes, edición de datos y consulta de cuenta corriente.
+                            </p>
+                            <a href="/clientes" class="btn btn-sm btn-outline-primary">Ver clientes</a>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <h6 class="mb-1">Productos</h6>
+                            <p class="small text-muted mb-2">
+                                Gestión de cajas, costos, precios de venta y contenido de cada combinación.
+                            </p>
+                            <a href="/productos" class="btn btn-sm btn-outline-primary">Ver productos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna derecha con pequeño bloque de marca / info -->
+    <div class="col-12 col-lg-5 mt-3 mt-lg-0">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title mb-2">Sabor de Autor</h5>
+                    <p class="small text-muted mb-3">
+                        Sistema interno de gestión de pedidos, cuenta corriente y reportes del emprendimiento.
+                    </p>
+
+                    <ul class="list-unstyled small mb-3">
+                        <li><strong>Uso típico del día a día:</strong></li>
+                        <li>• Cargar pedidos y aplicar descuentos.</li>
+                        <li>• Ver qué hay que entregar desde el tablero.</li>
+                        <li>• Registrar pagos en la cuenta corriente.</li>
+                        <li>• Consultar reportes de ventas y ganancias.</li>
+                    </ul>
+                </div>
+
+                <div class="border-top pt-3 mt-2 small text-muted">
+                    Para cualquier cambio grande (nuevos reportes, nuevos usuarios, etc.),
+                    podés entrar con el usuario administrador.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

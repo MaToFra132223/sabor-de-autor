@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+  <a href="/clientes" class="btn btn-sm btn-outline-secondary">
+    « Volver a clientes
+  </a>
+
+  <button class="btn btn-sm btn-primary" onclick="window.print()">
+    Imprimir cuenta corriente
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-body">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h4 class="mb-1">Cuenta Corriente</h4>
+        <div><strong>{{ cliente.nombre }}</strong></div>
+        {% if cliente.email %}
+          <div>Email: {{ cliente.email }}</div>
+        {% endif %}
+        {% if cliente.telefono %}
+          <div>Tel: {{ cliente.telefono }}</div>
+        {% endif %}
+      </div>
+
+      <div class="text-end">
+        <div class="fw-semibold">Fecha de impresión</div>
+        <div>{{ now().strftime("%d/%m/%Y %H:%M") }}</div>
+      </div>
+    </div>
+
+    <table class="table table-sm table-bordered align-middle mb-4">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 12%;">Fecha</th>
+          <th>Descripción</th>
+          <th style="width: 15%;" class="text-end">Débito</th>
+          <th style="width: 15%;" class="text-end">Crédito</th>
+          <th style="width: 18%;" class="text-end">Saldo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in mov_rows %}
+          <tr>
+            <td>{{ row.mov.fecha.strftime("%d/%m/%Y") }}</td>
+            <td>{{ row.mov.descripcion }}</td>
+
+            <td class="text-end">
+              {% if row.es_debito %}
+                $ {{ "%.2f"|format(row.mov.monto) }}
+              {% else %}
+                –
+              {% endif %}
+            </td>
+
+            <td class="text-end">
+              {% if not row.es_debito %}
+                $ {{ "%.2f"|format(row.mov.monto) }}
+              {% else %}
+                –
+              {% endif %}
+            </td>
+
+            <td class="text-end">
+              $ {{ "%.2f"|format(row.saldo) }}
+            </td>
+          </tr>
+        {% endfor %}
+
+        <tr class="table-secondary fw-semibold">
+          <td colspan="4" class="text-end">Saldo final</td>
+          <td class="text-end">
+            $ {{ "%.2f"|format(saldo_final) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Formulario para registrar pago -->
+    <div class="no-print">
+      <h6 class="mb-3">Registrar pago</h6>
+
+      <form method="post" action="/clientes/{{ cliente.id }}/registrar-pago" class="row g-2 align-items-end">
+        <div class="col-sm-3 col-md-2">
+          <label class="form-label">Monto</label>
+          <input type="number"
+                 step="0.01"
+                 min="0"
+                 class="form-control"
+                 name="monto"
+                 required>
+        </div>
+
+        <div class="col-sm-6 col-md-6 col-lg-4">
+          <label class="form-label">Descripción</label>
+          <input type="text"
+                 class="form-control"
+                 name="descripcion"
+                 value="Pago">
+        </div>
+
+        <div class="col-sm-3 col-md-2">
+          <button type="submit" class="btn btn-success">
+            Registrar pago
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+

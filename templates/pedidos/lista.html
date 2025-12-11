@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos – Sabor de Autor{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">Pedidos</h3>
+        <small class="text-muted">Listado y gestión de pedidos</small>
+    </div>
+    <div>
+        <a href="/pedidos/nuevo" class="btn btn-primary btn-sm">
+            + Nuevo pedido
+        </a>
+    </div>
+</div>
+
+<form class="row g-2 mb-3" method="get" action="/pedidos">
+    <div class="col-md-3">
+        <label class="form-label mb-1">Cliente</label>
+        <input type="text"
+               name="buscar"
+               class="form-control form-control-sm"
+               placeholder="Nombre del cliente..."
+               value="{{ buscar }}">
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label mb-1">Estado</label>
+        <select name="estado" class="form-select form-select-sm">
+            <option value="todos" {% if estado == "todos" %}selected{% endif %}>Todos</option>
+            <option value="pendiente" {% if estado == "pendiente" %}selected{% endif %}>Pendientes</option>
+            <option value="entregado" {% if estado == "entregado" %}selected{% endif %}>Entregados</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label mb-1">Desde</label>
+        <input type="date"
+               name="desde"
+               class="form-control form-control-sm"
+               value="{{ desde }}">
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label mb-1">Hasta</label>
+        <input type="date"
+               name="hasta"
+               class="form-control form-control-sm"
+               value="{{ hasta }}">
+    </div>
+
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-outline-secondary btn-sm me-2">
+            Buscar / Filtrar
+        </button>
+        <a href="/pedidos" class="btn btn-link btn-sm text-decoration-none">
+            Limpiar filtros
+        </a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 110px;">Fecha</th>
+                        <th>Cliente</th>
+                        <th style="width: 120px;" class="text-end">Total</th>
+                        <th style="width: 120px;" class="text-center">Estado</th>
+                        <th style="width: 320px;" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if pedidos and pedidos|length > 0 %}
+                        {% for p in pedidos %}
+                            <tr>
+                                <td>
+                                    {{ p.fecha_pedido.strftime("%d/%m/%Y %H:%M") }}
+                                </td>
+                                <td>
+                                    {% if p.cliente %}
+                                        {{ p.cliente.nombre }}
+                                    {% else %}
+                                        <span class="text-muted">Sin cliente</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    $ {{ "%.2f"|format(p.total or 0.0) }}
+                                </td>
+                                <td class="text-center">
+                                    {% if p.estado.name == "entregado" %}
+                                        <span class="badge bg-success">Entregado</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+
+                                    <!-- Ver -->
+                                    <a href="/pedidos/ver/{{ p.id }}"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        <span class="me-1">👁</span> Ver
+                                    </a>
+
+                                    <!-- Editar -->
+                                    <a href="/pedidos/editar/{{ p.id }}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        ✏️ Editar
+                                    </a>
+
+                                    <!-- Cuenta Corriente -->
+                                    {% if p.cliente %}
+                                        <a href="/clientes/{{ p.cliente.id }}/cta-cte"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            📄 Cta Cte
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-outline-secondary"
+                                                type="button"
+                                                disabled>
+                                            📄 Cta Cte
+                                        </button>
+                                    {% endif %}
+
+                                    <!-- Entregar -->
+                                    {% if p.estado.name == "pendiente" %}
+                                        <form action="/pedidos/{{ p.id }}/marcar-entregado"
+                                              method="post"
+                                              class="d-inline">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-success">
+                                                ✅ Entregar
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-success"
+                                                disabled>
+                                            ✅ Entregado
+                                        </button>
+                                    {% endif %}
+
+                                    <!-- Eliminar -->
+                                    <form action="/pedidos/{{ p.id }}/eliminar"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('¿Seguro que querés eliminar este pedido?');">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger">
+                                            🗑
+                                        </button>
+                                    </form>
+
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-3">
+                                No hay pedidos que coincidan con el filtro.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

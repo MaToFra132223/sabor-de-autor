@@ -1,0 +1,171 @@
+/* =========
+   Paleta general
+   ========= */
+body {
+    background-color: #f4f5f7;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Barra superior */
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.navbar-dark.bg-dark {
+    background: linear-gradient(90deg, #111827, #1f2937);
+}
+
+/* Links de navegación */
+.navbar-nav .nav-link {
+    font-size: 0.95rem;
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+}
+
+.navbar-nav .nav-link.active {
+    font-weight: 600;
+    border-bottom: 2px solid #f59e0b;
+}
+
+/* Contenedores principales */
+.main-container {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+/* Tarjetas principales */
+.card-main {
+    border-radius: 0.6rem;
+    border: none;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+/* Cabeceras de tarjetas */
+.card-header {
+    font-weight: 600;
+    background: #f9fafb;
+}
+
+/* Tablas */
+.table thead th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+/* Badges de estado */
+.badge-pendiente {
+    background: #f59e0b;
+    color: #111827;
+}
+
+.badge-entregado {
+    background: #10b981;
+}
+
+/* Botones */
+.btn-sm {
+    border-radius: 999px;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Cabecera de sección */
+.page-header-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.page-header-subtitle {
+    font-size: 0.9rem;
+}
+
+/* Footer */
+.app-footer {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    padding: 0.75rem 0;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 1rem;
+}
+
+/* Dashboard tarjetas resumen */
+.kpi-card {
+    border-left: 4px solid #3b82f6;
+}
+
+.kpi-card.orange {
+    border-left-color: #f97316;
+}
+
+.kpi-card.green {
+    border-left-color: #10b981;
+}
+
+/* Tablero columnas */
+.board-column {
+    border-radius: 0.6rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+
+.board-column-header {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.board-column-body {
+    max-height: 65vh;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+/* Tarjeta de pedido en tablero */
+.board-card {
+    border-radius: 0.6rem;
+    border: 1px solid #e5e7eb;
+    background: white;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+    font-size: 0.9rem;
+}
+
+.board-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.board-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.25rem;
+}
+
+/* Reportes tablas */
+.table-report th,
+.table-report td {
+    font-size: 0.9rem;
+}
+
+/* Pequeñas utilidades */
+.text-muted-small {
+    font-size: 0.8rem;
+}

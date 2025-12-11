@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h4 class="mb-3">
+  {% if pedido %}Editar pedido{% else %}Nuevo pedido{% endif %}
+</h4>
+
+<form method="post"
+      {% if pedido %}
+        action="/pedidos/actualizar/{{ pedido.id }}"
+      {% else %}
+        action="/pedidos/guardar"
+      {% endif %}
+>
+
+<div class="card mb-3">
+  <div class="card-body">
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Cliente</label>
+        <select name="cliente_id" class="form-select" required>
+          <option value="">Seleccione...</option>
+          {% for c in clientes %}
+            <option value="{{ c.id }}"
+              {% if pedido and pedido.cliente_id == c.id %}selected{% endif %}>
+              {{ c.nombre }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Fecha entrega</label>
+        <input type="date"
+               class="form-control"
+               name="fecha_entrega"
+               value="{{ pedido.fecha_entrega.strftime('%Y-%m-%d') if pedido and pedido.fecha_entrega else '' }}">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Medio de contacto</label>
+        <input type="text"
+               class="form-control"
+               name="medio_contacto"
+               value="{{ pedido.medio_contacto if pedido else '' }}">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Descuento</label>
+        <input type="number"
+               step="0.01"
+               class="form-control"
+               name="descuento"
+               placeholder="%"
+               value="{{ pedido.descuento if pedido else '0' }}">
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Items -->
+    <table class="table table-sm table-bordered align-middle" id="itemsTable">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 25%;">Producto</th>
+          <th style="width: 25%;">Descripción</th>
+          <th style="width: 10%;">Cant.</th>
+          <th style="width: 15%;">Precio unit.</th>
+          <th style="width: 15%;">Subtotal</th>
+          <th style="width: 10%;"></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% if pedido %}
+          {% for item in pedido.items %}
+            <tr>
+              <td>
+                <select name="producto_id" class="form-select" required>
+                  <option value="">Seleccione...</option>
+                  {% for p in productos %}
+                    <option value="{{ p.id }}"
+                            data-precio="{{ '%.2f'|format(p.precio_venta) }}"
+                            {% if item.producto_id == p.id %}selected{% endif %}>
+                      {{ p.nombre }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </td>
+
+              <td>
+                <input type="text"
+                       class="form-control"
+                       name="descripcion_item"
+                       value="{{ item.descripcion_item }}">
+              </td>
+
+              <td>
+                <input type="number"
+                       class="form-control cantidad"
+                       name="cantidad"
+                       min="1"
+                       value="{{ item.cantidad }}">
+              </td>
+
+              <td>
+                <input type="number"
+                       class="form-control precio"
+                       name="precio_unitario"
+                       step="0.01"
+                       value="{{ item.precio_venta_unitario }}">
+              </td>
+
+              <td class="subtotal text-end fw-bold">
+                {{ "%.2f"|format(item.subtotal) }}
+              </td>
+
+              <td class="text-center">
+                <button type="button"
+                        class="btn btn-sm btn-danger"
+                        onclick="removeRow(this)">
+                  ✖
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td>
+              <select name="producto_id" class="form-select" required>
+                <option value="">Seleccione...</option>
+                {% for p in productos %}
+                  <option value="{{ p.id }}"
+                          data-precio="{{ '%.2f'|format(p.precio_venta) }}">
+                    {{ p.nombre }}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
+
+            <td>
+              <input type="text"
+                     class="form-control"
+                     name="descripcion_item">
+            </td>
+
+            <td>
+              <input type="number"
+                     class="form-control cantidad"
+                     name="cantidad"
+                     min="1"
+                     value="1">
+            </td>
+
+            <td>
+              <input type="number"
+                     class="form-control precio"
+                     name="precio_unitario"
+                     step="0.01">
+            </td>
+
+            <td class="subtotal text-end fw-bold">0.00</td>
+
+            <td class="text-center">
+              <button type="button"
+                      class="btn btn-sm btn-danger"
+                      onclick="removeRow(this)">
+                ✖
+              </button>
+            </td>
+          </tr>
+        {% endif %}
+
+      </tbody>
+    </table>
+
+    <div class="mb-3">
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              onclick="addRow()">
+        + Agregar producto
+      </button>
+    </div>
+
+    <div class="row justify-content-end">
+      <div class="col-md-4">
+        <table class="table table-sm">
+          <tr>
+            <th>Subtotal</th>
+            <td class="text-end" id="subtotalGeneral">0.00</td>
+          </tr>
+          <tr>
+            <th>Descuento</th>
+            <td class="text-end" id="descuentoDisplay">0.00</td>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <td class="text-end fw-bold" id="totalGeneral">0.00</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <button type="submit" class="btn btn-primary">
+        {% if pedido %}Guardar cambios{% else %}Guardar pedido{% endif %}
+      </button>
+      <a href="/pedidos" class="btn btn-secondary">Cancelar</a>
+    </div>
+
+  </div>
+</div>
+
+</form>
+
+<script>
+function addRow() {
+  let tbody = document.querySelector("#itemsTable tbody");
+  let row = tbody.rows[0].cloneNode(true);
+
+  // limpiar valores
+  let select = row.querySelector("select[name='producto_id']");
+  select.value = "";
+  row.querySelector("input[name='descripcion_item']").value = "";
+  row.querySelector("input[name='cantidad']").value = 1;
+  row.querySelector("input[name='precio_unitario']").value = "";
+  row.querySelector(".subtotal").innerText = "0.00";
+
+  tbody.appendChild(row);
+}
+
+function removeRow(btn) {
+  let tbody = document.querySelector("#itemsTable tbody");
+  if (tbody.rows.length > 1) {
+    btn.closest("tr").remove();
+    calcularTotales();
+  }
+}
+
+function calcularTotales() {
+  let filas = document.querySelectorAll("#itemsTable tbody tr");
+  let subtotal = 0;
+
+  filas.forEach(row => {
+    let cantidad = parseFloat(row.querySelector("input[name='cantidad']").value) || 0;
+    let precio = parseFloat(row.querySelector("input[name='precio_unitario']").value) || 0;
+    let sub = cantidad * precio;
+
+    row.querySelector(".subtotal").innerText = sub.toFixed(2);
+    subtotal += sub;
+  });
+
+  // Descuento en PORCENTAJE
+  let descInput = document.querySelector("input[name='descuento']");
+  let porcentaje = parseFloat((descInput.value || "0").replace(",", ".")) || 0;
+
+  let descuentoMonto = subtotal * (porcentaje / 100);
+  let total = subtotal - descuentoMonto;
+  if (total < 0) total = 0;
+
+  document.getElementById("subtotalGeneral").innerText = subtotal.toFixed(2);
+  document.getElementById("descuentoDisplay").innerText = descuentoMonto.toFixed(2);
+  document.getElementById("totalGeneral").innerText = total.toFixed(2);
+}
+
+// Cuando cambia el producto, cargar precio y descripción
+document.addEventListener("change", function(e) {
+  if (e.target.tagName === "SELECT" && e.target.name === "producto_id") {
+    let select = e.target;
+    let opt = select.selectedOptions[0];
+    let precio = parseFloat(opt.dataset.precio || "0") || 0;
+
+    let row = select.closest("tr");
+    let precioInput = row.querySelector("input[name='precio_unitario']");
+    let descInput = row.querySelector("input[name='descripcion_item']");
+
+    precioInput.value = precio.toFixed(2);
+
+    if (!descInput.value.trim()) {
+      descInput.value = opt.textContent.trim();
+    }
+
+    calcularTotales();
+  }
+});
+
+// Recalcular al editar cantidad, precio o descuento
+document.addEventListener("input", function(e) {
+  if (e.target.classList.contains("cantidad") ||
+      e.target.classList.contains("precio") ||
+      e.target.name === "descuento") {
+    calcularTotales();
+  }
+});
+
+window.onload = calcularTotales;
+</script>
+
+
+{% endblock %}
